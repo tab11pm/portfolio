@@ -43,6 +43,13 @@ body {
 		var(--bg);
 }
 
+.wrapper {
+	display: flex;
+	flex-direction: column;
+
+	min-height: 100%;
+}
+
 .container {
 	width: min(1100px, calc(100% - 32px));
 	margin: 0 auto;
@@ -102,6 +109,7 @@ body {
 }
 
 .main {
+	flex: 1 1 auto;
 	padding: 22px 0 40px;
 }
 
