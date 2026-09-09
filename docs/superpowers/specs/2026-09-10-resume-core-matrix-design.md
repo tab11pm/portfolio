@@ -22,7 +22,7 @@ This retains the reference's asymmetric modular-card structure, fixed spacing rh
 
 ## Data and component boundaries
 
-`data/experience.ts` remains the source of truth for the three factual experience records. The résumé page maps those records to a fixed visual role by their existing order: lead, side, lower. The editorial card is static presentation copy, not a new résumé data record.
+`data/experience.ts` remains the source of truth for the three factual experience records and keeps its existing canonical order. The résumé page derives an explicit display order—PinShop TJ, Matrix IT, then ТУСУР—before mapping those records to the fixed visual roles lead, side, and lower. The editorial card is static presentation copy, not a new résumé data record.
 
 The page may add narrowly scoped class names and CSS rules to `app/globals.css`. It must not change the global colour tokens, header/footer, home page, portfolio page, public data, or routing.
 
