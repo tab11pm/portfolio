@@ -32,6 +32,7 @@ it("renders the supplied hero content and destinations", () => {
   expect(screen.getByRole("heading")).toHaveTextContent("Создаю понятныецифровые продукты.");
   expect(screen.getByRole("link", { name: "Смотреть работы" })).toHaveAttribute("href", "/portfolio");
   expect(screen.getByRole("img", { name: props.imageAlt })).toBeInTheDocument();
+  expect(screen.getByTestId("hero-portrait-frame")).toHaveClass("lg:h-[82vh]");
   expect(screen.getByText("Томск, Россия")).toBeInTheDocument();
 });
 
