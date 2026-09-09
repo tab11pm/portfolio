@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { ReactNode } from "react";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,9 +13,9 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html lang="ru">
       <body>
-        <header><Link href="/">Табрез Шонизоров</Link></header>
+        <Header />
         <main>{children}</main>
-        <footer>Портфолио разработчика</footer>
+        <Footer />
       </body>
     </html>
   );
