@@ -1,4 +1,25 @@
-import Link from "next/link";
-import { AmbientCanvas } from "@/components/AmbientCanvas";
+import { MinimalistHero } from "@/components/ui/minimalist-hero";
 
-export default function HomePage() { return <section className="hero"><AmbientCanvas variant="pixels" /><div className="hero-orbit" aria-hidden><i /><i /><i /></div><div className="hero-content"><p className="eyebrow"><span>01</span> Frontend developer · Томск</p><h1>Создаю <em>понятные</em> цифровые продукты.</h1><p className="hero-copy">Табрез Шонизоров — разработчик, который соединяет продуктовый подход, интерфейсы и инженерную системность.</p><div className="actions"><Link className="button button-primary" href="/portfolio"><span>Смотреть работы</span><b>↗</b></Link><Link className="button button-quiet" href="/resume">Резюме <span>→</span></Link></div><div className="hero-notes"><span>2024—сейчас</span><span>ТУСУР · РАЗРАБОТКА ПО</span><span>NEXT.JS / TYPESCRIPT</span></div></div></section>; }
+export default function HomePage() {
+  return <MinimalistHero
+    logoText="ТШ"
+    navLinks={[
+      { label: "Главная", href: "/" },
+      { label: "Резюме", href: "/resume" },
+      { label: "Портфолио", href: "/portfolio" },
+    ]}
+    mainText="Табрез Шонизоров — разработчик, который соединяет продуктовый подход, интерфейсы и инженерную системность."
+    readMoreLink="/portfolio"
+    imageSrc="/images/hero-portrait.png"
+    imageAlt="Портрет Табреза Шонизорова"
+    overlayText={{ part1: "Создаю понятные", part2: "цифровые продукты." }}
+    socialLinks={[
+      { icon: "code", href: "https://github.com/tab11pm/", label: "GitHub" },
+      { icon: "message", href: "https://t.me/tab_dev", label: "Telegram" },
+      { icon: "briefcase", href: "https://www.linkedin.com/in/tabrez-shonizorov-48043434b/", label: "LinkedIn" },
+      { icon: "radio", href: "https://t.me/ai_na_practike", label: "Telegram-канал" },
+      { icon: "mail", href: "mailto:tabrez.frontend@gmail.com", label: "Email" },
+    ]}
+    locationText="Томск, Россия"
+  />;
+}

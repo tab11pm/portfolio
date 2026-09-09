@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
+import { BriefcaseBusiness, Code2, Mail, MessageCircle, Radio, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface MinimalistHeroProps {
@@ -14,17 +14,28 @@ export interface MinimalistHeroProps {
   imageSrc: string;
   imageAlt: string;
   overlayText: { part1: string; part2: string };
-  socialLinks: { icon: LucideIcon; href: string; label: string }[];
+  socialLinks: { icon: SocialIconName; href: string; label: string }[];
   locationText: string;
   className?: string;
 }
+
+type SocialIconName = "code" | "message" | "briefcase" | "radio" | "mail";
+
+const socialIcons: Record<SocialIconName, LucideIcon> = {
+  code: Code2,
+  message: MessageCircle,
+  briefcase: BriefcaseBusiness,
+  radio: Radio,
+  mail: Mail,
+};
 
 function NavLink({ href, children }: { href: string; children: ReactNode }) {
   return <a href={href} className="text-sm font-medium tracking-widest text-[var(--muted)] transition-colors hover:text-[var(--text)]">{children}</a>;
 }
 
-function SocialIcon({ href, icon: Icon, label }: MinimalistHeroProps["socialLinks"][number]) {
+function SocialIcon({ href, icon, label }: MinimalistHeroProps["socialLinks"][number]) {
   const isEmail = href.startsWith("mailto:");
+  const Icon = socialIcons[icon];
   return <a aria-label={label} href={href} {...(!isEmail ? { target: "_blank", rel: "noopener noreferrer" } : {})} className="text-[var(--muted)] transition-colors hover:text-[var(--text)]"><Icon className="h-5 w-5" aria-hidden="true" /></a>;
 }
 
