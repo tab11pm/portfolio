@@ -52,7 +52,7 @@ export function MinimalistHero({ logoText, navLinks, mainText, readMoreLink, ima
   return <section className={cn("relative flex min-h-screen w-full flex-col items-center justify-between overflow-hidden bg-[var(--bg)] px-6 py-8 font-sans text-[var(--text)] md:px-12", className)}>
     <header className="z-30 flex w-full max-w-7xl items-center justify-between">
       <motion.div initial={fadeFromLeft} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="font-mono text-xl font-bold tracking-wider text-[var(--accent)]">{logoText}</motion.div>
-      <nav aria-label="Основная навигация" className="hidden items-center space-x-8 md:flex">{navLinks.map((link) => <NavLink key={link.href} href={link.href}>{link.label}</NavLink>)}</nav>
+      <nav aria-label="Основная навигация" className="!hidden items-center space-x-8 md:!flex">{navLinks.map((link) => <NavLink key={link.href} href={link.href}>{link.label}</NavLink>)}</nav>
       <motion.button type="button" initial={fadeFromRight} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }} className="flex flex-col space-y-1.5 md:hidden" aria-label={isMenuOpen ? "Закрыть меню" : "Открыть меню"} aria-expanded={isMenuOpen} onClick={() => setIsMenuOpen((open) => !open)}>
         <span className="block h-0.5 w-6 bg-[var(--text)]" /><span className="block h-0.5 w-6 bg-[var(--text)]" /><span className="block h-0.5 w-5 bg-[var(--text)]" />
       </motion.button>
@@ -68,6 +68,6 @@ export function MinimalistHero({ logoText, navLinks, mainText, readMoreLink, ima
       <motion.div initial={fadeFromBottom} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: reduceMotion ? 0 : 1 }} className="z-50 order-3 flex items-center justify-center text-center md:justify-start md:text-left"><h1 className="text-6xl font-semibold leading-none tracking-tight text-[var(--text)] md:text-7xl lg:text-8xl">{overlayText.part1}<br />{overlayText.part2}</h1></motion.div>
     </div>
 
-    <footer className="z-30 flex w-full max-w-7xl items-center justify-between gap-4"><motion.div initial={fadeFromBottom} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: reduceMotion ? 0 : 1 }} className="hidden items-center space-x-4 md:flex">{socialLinks.map((link) => <SocialIcon key={link.label} {...link} />)}</motion.div><motion.div initial={fadeFromBottom} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: reduceMotion ? 0 : 1.1 }} className="text-right text-sm font-medium text-[var(--muted)]">{locationText}</motion.div></footer>
+    <footer className="z-30 flex w-full max-w-7xl items-center justify-between gap-4"><motion.div initial={fadeFromBottom} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: reduceMotion ? 0 : 1 }} className="flex items-center space-x-4">{socialLinks.map((link) => <SocialIcon key={link.label} {...link} />)}</motion.div><motion.div initial={fadeFromBottom} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: reduceMotion ? 0 : 1.1 }} className="text-right text-sm font-medium text-[var(--muted)]">{locationText}</motion.div></footer>
   </section>;
 }

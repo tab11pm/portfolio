@@ -71,10 +71,12 @@ it("configures the homepage with the approved portrait and contacts", () => {
   expect(screen.getByRole("img", { name: "Портрет Табреза Шонизорова" })).toBeInTheDocument();
 });
 
-it("hides the homepage social links below the desktop breakpoint", () => {
+it("keeps homepage social links visible and shows navigation only through the menu below desktop", () => {
   render(<HomePage />);
 
   const socialLinks = screen.getByRole("link", { name: "GitHub" }).parentElement;
-  expect(socialLinks).toHaveClass("hidden");
-  expect(socialLinks).toHaveClass("md:flex");
+  expect(socialLinks).toHaveClass("flex");
+  expect(socialLinks).not.toHaveClass("hidden");
+  expect(screen.getByRole("navigation", { name: "Основная навигация" })).toHaveClass("!hidden");
+  expect(screen.getByRole("navigation", { name: "Основная навигация" })).toHaveClass("md:!flex");
 });
