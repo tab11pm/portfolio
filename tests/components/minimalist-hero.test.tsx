@@ -66,7 +66,15 @@ it("configures the homepage with the approved portrait and contacts", () => {
   expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", "https://github.com/tab11pm/");
   expect(screen.getByRole("link", { name: "Telegram" })).toHaveAttribute("href", "https://t.me/tab_dev");
   expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveAttribute("href", "https://www.linkedin.com/in/tabrez-shonizorov-48043434b/");
-  expect(screen.getByRole("link", { name: "Telegram-канал" })).toHaveAttribute("href", "https://t.me/ai_na_practike");
+  expect(screen.queryByRole("link", { name: "Telegram-канал" })).not.toBeInTheDocument();
   expect(screen.getByRole("link", { name: "Email" })).toHaveAttribute("href", "mailto:tabrez.frontend@gmail.com");
   expect(screen.getByRole("img", { name: "Портрет Табреза Шонизорова" })).toBeInTheDocument();
+});
+
+it("hides the homepage social links below the desktop breakpoint", () => {
+  render(<HomePage />);
+
+  const socialLinks = screen.getByRole("link", { name: "GitHub" }).parentElement;
+  expect(socialLinks).toHaveClass("hidden");
+  expect(socialLinks).toHaveClass("md:flex");
 });

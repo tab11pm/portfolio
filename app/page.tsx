@@ -17,7 +17,6 @@ export default function HomePage() {
       { icon: "code", href: "https://github.com/tab11pm/", label: "GitHub" },
       { icon: "message", href: "https://t.me/tab_dev", label: "Telegram" },
       { icon: "briefcase", href: "https://www.linkedin.com/in/tabrez-shonizorov-48043434b/", label: "LinkedIn" },
-      { icon: "radio", href: "https://t.me/ai_na_practike", label: "Telegram-канал" },
       { icon: "mail", href: "mailto:tabrez.frontend@gmail.com", label: "Email" },
     ]}
     locationText="Томск, Россия"
