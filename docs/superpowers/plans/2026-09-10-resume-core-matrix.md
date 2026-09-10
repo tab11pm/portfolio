@@ -1,159 +1,128 @@
-# Resume Core Matrix Implementation Plan
+# Resume Aether Nexus Core Matrix Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Rebuild `/resume` as a responsive Core Matrix-inspired experience grid using the portfolio's existing palette and factual experience data.
+**Goal:** Replace `/resume` with the supplied Aether Nexus Core Matrix design system, adapting only its colour roles to the portfolio palette and adding its minimal GSAP motion.
 
-**Architecture:** `data/experience.ts` remains the canonical factual source and is not reordered. `app/resume/page.tsx` derives a display sequence by company name, renders the three data records into named grid roles, and adds one static editorial module. Scoped CSS in `app/globals.css` supplies the desktop 8/4 then 4/8 matrix and its one-column mobile fallback.
+**Architecture:** The server page derives the approved display order from unchanged experience data. A client `ResumeMatrix` component owns semantic card markup and GSAP ScrollTrigger lifecycle. Scoped CSS supplies the full-bleed 12-column matrix, exact typography/spacing/elevation constraints, responsive collapse, and reduced-motion fallback.
 
-**Tech Stack:** Next.js 16, React 19, TypeScript, global CSS, Vitest, Testing Library.
+**Tech Stack:** Next.js 16, React 19, TypeScript, GSAP with ScrollTrigger, CSS, Vitest, Testing Library.
 
 ## Global Constraints
 
-- Preserve the existing global colour tokens; use only the current dark, lilac, gold, and warm-light palette.
-- Do not alter facts, dates, roles, descriptions, or canonical ordering in `data/experience.ts`.
-- Display experience in the approved order: PinShop TJ, Matrix IT, then ТУСУР.
-- Do not add dependencies, motion, filters, routes, downloadable assets, or changes to unrelated pages.
-- Keep semantic article content and readable order without relying on colour or visual position.
-- At `max-width: 700px`, show the lead, side, lower, and editorial modules in that one-column order.
+- Preserve data facts and the canonical array order in `data/experience.ts`.
+- Display PinShop TJ, Matrix IT, and ТУСУР in that explicit order.
+- Adapt only reference colour roles to `--bg`, `--accent`, `--hot`, and existing portfolio neutrals.
+- Use full-bleed grid, 8px rhythm, 32px cards, Inter/Space Mono hierarchy, supplied radius/border/elevation family, and minimal motion.
+- Always render readable static content; reduced motion disables GSAP and transforms.
+- Do not modify unrelated pages, routes, header/footer, or résumé facts.
 
 ---
 
 ## File structure
 
-- `app/resume/page.tsx` — derives the approved display order, defines the page's semantic matrix markup, and maps the three factual entries into card roles.
-- `app/globals.css` — adds only `.resume-*` rules for the desktop module spans, restrained card surfaces, and mobile collapse.
-- `tests/components/resume-page.test.tsx` — locks down all factual card content, display ordering, editorial copy, and semantic card structure.
+- `package.json`, `package-lock.json` — add the `gsap` runtime dependency.
+- `app/resume/page.tsx` — derive and pass display-order experience entries.
+- `components/ResumeMatrix.tsx` — client-side matrix markup and ScrollTrigger cleanup.
+- `app/globals.css` — replace old résumé rules with faithful Core Matrix styling.
+- `tests/components/resume-page.test.tsx` — assert content, order, semantic cards, and animation hook classes.
 
-### Task 1: Build and verify the résumé matrix
+### Task 1: Lock down the reference-facing page contract
 
 **Files:**
-- Create: `tests/components/resume-page.test.tsx`
-- Modify: `app/resume/page.tsx`
-- Modify: `app/globals.css`
+- Modify: `tests/components/resume-page.test.tsx`
 
 **Interfaces:**
-- Consumes: `experience: readonly ExperienceEntry[]` from `@/data/experience`, where entries have `period`, `company`, `role`, and `description`.
-- Produces: default `ResumePage()` with a `resume-grid` containing the `resume-card--lead`, `resume-card--side`, `resume-card--lower`, and `resume-card--editorial` articles.
+- Consumes: default `ResumePage()`.
+- Produces: test coverage for the `.resume-matrix`, ordered card classes, and `.resume-reveal` motion hook.
 
-- [ ] **Step 1: Write the failing page test**
+- [ ] **Step 1: Extend the failing test**
 
-Create `tests/components/resume-page.test.tsx` with this exact test. It makes both the intended content and the deliberate visual ordering observable without changing the source data's canonical order.
+Add these assertions after the existing card-class expectation:
 
 ```tsx
-import { render, screen, within } from "@testing-library/react";
-import ResumePage from "@/app/resume/page";
-
-it("renders the approved Core Matrix résumé cards in display order", () => {
-  const { container } = render(<ResumePage />);
-
-  expect(screen.getByRole("heading", { level: 1, name: "Опыт, системность, рост." })).toBeInTheDocument();
-
-  const cards = Array.from(container.querySelectorAll(".resume-grid > article"));
-  expect(cards).toHaveLength(4);
-  expect(cards.map((card) => card.className)).toEqual([
-    "resume-card resume-card--lead",
-    "resume-card resume-card--side",
-    "resume-card resume-card--lower",
-    "resume-card resume-card--editorial",
-  ]);
-
-  expect(within(cards[0]).getByText("PinShop TJ")).toBeInTheDocument();
-  expect(within(cards[0]).getByText("2026—сейчас")).toBeInTheDocument();
-  expect(within(cards[1]).getByText("Matrix IT")).toBeInTheDocument();
-  expect(within(cards[1]).getByText("2024—2026")).toBeInTheDocument();
-  expect(within(cards[2]).getByText("ТУСУР")).toBeInTheDocument();
-  expect(within(cards[2]).getByText("2024—2028")).toBeInTheDocument();
-  expect(within(cards[3]).getByText("Строю продукты и беру ответственность за систему.")).toBeInTheDocument();
-});
+expect(container.querySelector(".resume-matrix")).toBeInTheDocument();
+expect(cards.every((card) => card.classList.contains("resume-reveal"))).toBe(true);
+expect(container.querySelectorAll(".resume-parallax")).toHaveLength(2);
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [ ] **Step 2: Run the focused test**
 
 Run: `npm test -- tests/components/resume-page.test.tsx`
 
-Expected: FAIL because the résumé grid and its four card classes do not exist yet.
+Expected: FAIL because the current page does not expose the matrix or motion hook classes.
 
-- [ ] **Step 3: Replace the timeline markup with semantic matrix markup**
+### Task 2: Add the GSAP matrix component and data boundary
 
-In `app/resume/page.tsx`, retain the existing `experience` import and define the display list before the component:
+**Files:**
+- Modify: `package.json`
+- Modify: `package-lock.json`
+- Create: `components/ResumeMatrix.tsx`
+- Modify: `app/resume/page.tsx`
 
-```tsx
-const resumeExperience = ["PinShop TJ", "Matrix IT", "ТУСУР"].map((company) => {
-  const entry = experience.find((item) => item.company === company);
+**Interfaces:**
+- Consumes: `readonly ExperienceEntry[]` in the approved display order.
+- Produces: `ResumeMatrix({ entries }: { entries: readonly ExperienceEntry[] })` with four semantic articles and the `resume-reveal`/`resume-parallax` hooks expected by Task 1.
 
-  if (!entry) {
-    throw new Error(`Missing résumé entry for ${company}`);
-  }
+- [ ] **Step 1: Install the animation dependency**
 
-  return entry;
-});
-```
+Run: `npm install gsap`
 
-Render the existing eyebrow and heading followed by this four-article structure. Map `resumeExperience` to `lead`, `side`, and `lower` by index; print `item.period`, `item.company`, `item.role`, and `item.description` in each data card. The editorial article contains exactly the approved sentence.
+Expected: `package.json` gains `gsap` under `dependencies`; the lockfile records its resolved package.
 
-```tsx
-<section className="page resume-page">
-  <p className="eyebrow">Резюме</p>
-  <h1>Опыт, системность, рост.</h1>
-  <div className="resume-grid">
-    {resumeExperience.map((item, index) => {
-      const role = ["lead", "side", "lower"][index];
-      return (
-        <article className={`resume-card resume-card--${role}`} key={item.company}>
-          <time>{item.period}</time>
-          <h2>{item.company}</h2>
-          <strong>{item.role}</strong>
-          <p>{item.description}</p>
-          <span aria-hidden="true">0{index + 1}</span>
-        </article>
-      );
-    })}
-    <article className="resume-card resume-card--editorial">
-      <p>Фокус</p>
-      <h2>Строю продукты и беру ответственность за систему.</h2>
-    </article>
-  </div>
-</section>
-```
+- [ ] **Step 2: Implement the client component**
 
-- [ ] **Step 4: Add scoped Core Matrix styles and mobile collapse**
+Create `components/ResumeMatrix.tsx` with `"use client"`. Register `ScrollTrigger`, create a `gsap.context()` over a `ref`, and return its cleanup in `useLayoutEffect`. Before creating triggers, use `window.matchMedia("(prefers-reduced-motion: reduce)").matches`; if true, call `gsap.set(cards, { autoAlpha: 1, y: 0 })` and return. Otherwise reveal `.resume-reveal` cards once via `gsap.fromTo` and give `.resume-parallax` a restrained `yPercent` ScrollTrigger tween. Map the first three entries to lead/side/lower articles; add the exact editorial sentence in the fourth article.
 
-Append scoped `.resume-*` CSS after the existing timeline rules in `app/globals.css`. Define `.resume-grid` as a 12-column grid with the existing spacing cadence; give `.resume-card--lead` an 8-column lilac surface and dark text, `.resume-card--side` a 4-column dark surface, `.resume-card--lower` a 4-column warm-light surface and dark text, and `.resume-card--editorial` an 8-column dark surface. Use thin borders, `clamp()` headings, existing `DM Mono` for utility text, and `position: relative` for the quiet index. Inside the existing `@media(max-width:700px)` block, set `.resume-card--lead`, `.resume-card--side`, `.resume-card--lower`, and `.resume-card--editorial` to `grid-column:span 12`.
+- [ ] **Step 3: Keep the data source canonical**
 
-- [ ] **Step 5: Run focused automated checks**
+In `app/resume/page.tsx`, derive entries by matching `"PinShop TJ"`, `"Matrix IT"`, and `"ТУСУР"` against `experience`, throw if one is absent, and render `<ResumeMatrix entries={resumeExperience} />`. Do not reorder or edit `experience` itself.
+
+- [ ] **Step 4: Run the focused test**
+
+Run: `npm test -- tests/components/resume-page.test.tsx`
+
+Expected: PASS.
+
+### Task 3: Apply the exact Core Matrix styling and verify runtime behaviour
+
+**Files:**
+- Modify: `app/globals.css`
+
+**Interfaces:**
+- Consumes: `.resume-matrix`, `.resume-card--lead`, `.resume-card--side`, `.resume-card--lower`, `.resume-card--editorial`, `.resume-reveal`, and `.resume-parallax` from `ResumeMatrix`.
+- Produces: full-bleed responsive presentation whose content remains visible when motion is reduced.
+
+- [ ] **Step 1: Replace the current résumé CSS**
+
+Use a full-bleed 12-column `.resume-matrix` with 8px gaps and 32px page/card padding. Load Inter in the existing font import and use it for card display headings at 48px/48px/-0.05em; use `DM Mono` as the existing Space-Mono-like utility face for 9px uppercase labels. Apply the mapped lilac lead surface, deep/dark secondary panels, gold tertiary detail, 1px/2px border family, 2px/4px/24px radii, and the reference inset/highlight shadows. At 700px, change all cards to one column. In `@media (prefers-reduced-motion: reduce)`, force opacity and transform to visible/resting values and disable transition.
+
+- [ ] **Step 2: Verify focused and full checks**
 
 Run:
 
 ```bash
 npm test -- tests/components/resume-page.test.tsx tests/data/public-content.test.ts
-```
-
-Expected: PASS. The new page test confirms display order and all content; the public-content test confirms canonical source data stays unchanged.
-
-- [ ] **Step 6: Run the project quality gate and inspect both layouts**
-
-Run:
-
-```bash
 npm test
 npm run build
 ```
 
-Expected: both commands exit 0. Then run `npm run dev`, inspect `/resume` at a desktop viewport and at 700px or narrower, and confirm the specified 8/4 then 4/8 spans collapse to one column in the specified order.
+Expected: all commands exit 0.
 
-- [ ] **Step 7: Commit the implementation atomically**
+- [ ] **Step 3: Inspect actual browser behaviour**
+
+Run `npm run dev`; inspect `/resume` at desktop and 390px wide. Confirm the full-bleed matrix, 8/4 then 4/8 spans, one-column mobile order, initial reveal, scroll parallax on lead/editorial cards, and static readable reduced-motion state.
+
+- [ ] **Step 4: Commit only the redesign**
 
 ```bash
-git add app/resume/page.tsx app/globals.css tests/components/resume-page.test.tsx
+git add package.json package-lock.json app/resume/page.tsx components/ResumeMatrix.tsx app/globals.css tests/components/resume-page.test.tsx
 git diff --cached --check
-git commit -m "feat: redesign resume as experience matrix"
+git commit -m "feat: apply aether nexus resume design"
 ```
-
-Expected: one commit containing only the résumé page, its scoped styling, and its focused test.
 
 ## Plan self-review
 
-- **Spec coverage:** Task 1 preserves the data source and palette, implements the four-module desktop layout and one-column mobile layout, retains semantic content, adds no motion/dependencies, and verifies both facts and rendering.
-- **No placeholders:** The task gives exact files, test code, card classes, display ordering, copy, commands, and commit scope.
-- **Consistency:** The `resume-card--lead`, `resume-card--side`, `resume-card--lower`, and `resume-card--editorial` interfaces asserted by the test are the same classes produced by the page and styled by CSS.
+- **Spec coverage:** Tasks cover the reference layout, only-colour adaptation, typography, elevation, motion, reduced motion, data integrity, testing, and browser verification.
+- **No placeholders:** Every task names its files, contracts, assertions, commands, and required motion behaviour.
+- **Consistency:** The test hooks in Task 1 are created in Task 2 and styled in Task 3.
