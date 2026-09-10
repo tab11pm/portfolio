@@ -1,65 +1,40 @@
-# Resume — Aether Nexus Core Matrix Design
+# Resume — Aether Nexus Card Deck Design
 
 **Date:** 2026-09-10
-**Scope:** Replace the current `/resume` design with a faithful application of the supplied “Aether Nexus — Core Matrix” brief. Only the reference colour roles are adapted to the portfolio palette.
+**Scope:** Present the approved résumé content as an interactive Aether Nexus-inspired deck while preserving the portfolio palette.
 
-## Non-negotiable reference contract
+## Visual contract
 
-The page uses the supplied reference as its design system, not as loose inspiration:
+The experience section is a single deck, not a grid or horizontal scroller. Four portrait cards share the same width, 2:3 aspect ratio, 24px radius, border, corner markers, typography, padding, and elevation recipe. The active card is flat and centred above the others. The remaining cards stay visible behind it as a controlled fan: one left, one right, and one lower centre.
 
-- full-bleed, open-frame, strong-grid composition;
-- 8px base rhythm; 8px, 12px, 16px, 24px, and 32px spacing only;
-- 32px card and section padding;
-- Inter display typography at 48px / 48px / -0.05em and Space Mono uppercase utility typography at 9px / 11.25px;
-- controlled 2px, 4px, 24px, and pill radius family;
-- elevated cards with the supplied inset/highlight shadow language and 1px/2px borders;
-- minimal, interface-led ScrollTrigger reveal and parallax choreography with `ease` timing;
-- no extra colours, unrelated shadows, gratuitous blur, or higher-than-minimal motion.
+The title remains an open editorial block above the deck. The deck uses the existing lilac, deep violet, gold, warm white, and dark surfaces. Experience facts and their canonical source in `data/experience.ts` remain unchanged; initial display order is PinShop TJ, Matrix IT, ТУСУР, then the editorial focus card.
 
-## Palette adaptation only
+## Interaction contract
 
-All non-colour visual choices above remain unchanged. Replace reference colour roles with existing portfolio colours:
+- The active card responds to pointer position with restrained `rotateX`, `rotateY`, and translation, giving the impression that it exists in shallow 3D space.
+- Pressing or touching the active card lifts it with a small scale increase and deeper shadow.
+- Dragging at least 82px left or right moves the card out of the deck and promotes the next or previous card.
+- Ordering is cyclic in both directions; after the fourth card comes the first.
+- Cards never become a horizontal scroll strip. Page width must not overflow the viewport.
+- Arrow Right advances and Arrow Left reverses for keyboard access.
+- `prefers-reduced-motion: reduce` keeps the full deck visible and switches all transitions to immediate state changes.
 
-| Reference role | Portfolio role |
-| --- | --- |
-| primary surface `#F43F5E` | lilac `--accent` (`#b7a5ff`) |
-| secondary `#8B5CF6` | deep violet from the existing background field (`#2b2052`) |
-| tertiary `#FAA443` | gold `--hot` (`#f0cc6d`) |
-| neutral/background `#050505` | `--bg` (`#0a0a0c`) |
-| light card text | existing dark ink `#0a0a0c` |
-| dark card text | `--text` (`#f3efe8`) and `--muted` |
+## Rendering safeguards
 
-## Layout and cards
-
-`/resume` breaks out of the site content-width constraint and uses a 12-column full-bleed grid, with a 32px page inset on desktop and an 8px grid gap.
-
-The title block is an open section above the grid. The experience cards are a deliberately asymmetric matrix: PinShop TJ spans eight columns as the primary lilac surface; Matrix IT spans four columns on a dark elevated surface; ТУСУР spans four columns in the warm-light surface; the last eight columns are a dark editorial focus card. Every card uses 32px padding, compact uppercase metadata, Inter title/role hierarchy, a numeric index, controlled radius, and the prescribed border/elevation treatment.
-
-Source facts remain in `data/experience.ts` unchanged. The display order is deliberately PinShop TJ, Matrix IT, then ТУСУР; the page derives that order without changing canonical data order.
-
-## Motion
-
-The matrix is a client-side visual component because it owns the reference-required GSAP animation.
-
-1. With normal motion enabled, each card begins subtly lower and transparent, then reveals once as it enters the viewport with `ease` and short staggered timing.
-2. The lead and editorial cards receive a restrained scroll-linked vertical parallax offset; side and lower cards remain anchored to preserve legibility.
-3. Hover/focus adds only a short elevation/translation response.
-4. With `prefers-reduced-motion: reduce`, all cards are visible immediately and no GSAP scroll triggers or hover transforms run.
+Each card owns its transform independently. The deck does not use `transform-style: preserve-3d`, because nested 3D stacking caused Chromium to clip overlapping cards into diagonal fragments after cycling. The keyboard focus indicator belongs only to the active card; pointer interaction must not draw a frame around the full deck.
 
 ## Component boundaries
 
-- `app/resume/page.tsx` selects factual entries in display order and supplies them to the matrix.
-- `components/ResumeMatrix.tsx` is the client component for semantic card markup, GSAP registration, reveal lifecycle, and motion preference handling.
-- `app/globals.css` holds only `.resume-*` styling and media/reduced-motion rules.
-- `tests/components/resume-page.test.tsx` verifies the factual content, visual role order, editorial copy, and semantic articles.
+- `app/resume/page.tsx` derives the approved factual order.
+- `components/ResumeMatrix.tsx` owns cyclic ordering, pointer capture, drag thresholds, hover tilt, GSAP layout transitions, keyboard navigation, and reduced-motion behaviour.
+- `app/globals.css` owns the portrait deck geometry, common card shape, fan layout container, surfaces, shadows, and responsive sizing.
+- `tests/components/resume-page.test.tsx` and `tests/components/resume-styles.test.ts` lock the semantic and CSS contracts.
+- `tests/e2e/resume.spec.ts` verifies overlap, common geometry, z-order, hover motion, cyclic drag, lack of horizontal overflow, and reduced motion in Chromium.
 
-## Verification
+## Verification contract
 
-1. Test the matrix content and order with Vitest/Testing Library.
-2. Run the complete test suite and production build.
-3. Inspect `/resume` in a real browser at desktop and mobile widths, including reduced-motion behaviour.
-4. Confirm the active ScrollTrigger animation does not move or hide content when reduced motion is enabled.
+The completed implementation must pass the full Vitest suite, résumé Playwright checks, ESLint, and the Next.js production build. Desktop and 390px mobile rendering must be inspected in a real browser before completion.
 
 ## Out of scope
 
-No change to résumé facts, other routes, header/footer, routing, downloadable PDF, filters, or colours outside the mapped palette roles.
+No changes to résumé facts, other routes, navigation, footer, downloadable documents, or the approved portfolio palette.
